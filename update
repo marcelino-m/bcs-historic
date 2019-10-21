@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+OLDIFS="$IFS"
+IFS=$'\n'
+
+for f in `bcs-get-shares | tail -n +2`;
+do
+    nemo=`echo "$f" | cut -d, -f1`
+    fnemo="$nemo.csv"
+    if [ -f "$fnemo" ]; then
+
+        date=`tail -n +2 "$fnemo" | tail -n 1 | cut -f1 -d,`
+        if [ -z date ]; then
+            bcs-get-historic-share "$nemo"  > "$fnemo"
+        else
+            bcs-get-historic-share "$nemo" $date | tail -n +2 >> "$fnemo"
+        fi
+
+    else
+
+        bcs-get-historic-share "$nemo"  > "$fnemo"
+
+    fi
+done
+
+IFS="$OLDIFS"
