@@ -26,5 +26,5 @@ done
 IFS="$OLDIFS"
 
 git add .
-git commit -m "'update: $(date --iso-8601)'"
+git commit -m "update: $(date --iso-8601)"
 git push origin master
