@@ -3,23 +3,18 @@
 OLDIFS="$IFS"
 IFS=$'\n'
 
-for f in `bcs-get-shares | tail -n +2`;
+for nemo in `bcs nemos --currency CLP -c nemo | tail -n +2`;
 do
-    nemo=`echo "$f" | cut -d, -f1`
     fnemo="$nemo.csv"
-    if [ -f "$fnemo" ]; then
+    [[ -f $fnemo ]] || touch "$fnemo"
 
-        date=`tail -n +2 "$fnemo" | tail -n 1 | cut -f1 -d,`
-        if [ -z date ]; then
-            bcs-get-historic-share "$nemo"  > "$fnemo"
-        else
-            bcs-get-historic-share "$nemo" $date | tail -n +2 >> "$fnemo"
-        fi
-
+    date=`tail -n +2 "$fnemo" | tail -n 1 | cut -f1 -d,`
+    if [[ -z $date ]]; then
+        bcs daily  "$nemo" > "$fnemo"
     else
-
-        bcs-get-historic-share "$nemo"  > "$fnemo"
-
+        # It's tail -n +(2 + 1),  skip header and first entry, because
+        # first entry of input is equal to last in the file
+        bcs daily --from "$date" "$nemo" | tail -n +3 >> "$fnemo"
     fi
 done
 
